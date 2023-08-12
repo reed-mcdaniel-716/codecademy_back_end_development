@@ -21,11 +21,11 @@ class Field {
     return this._gameStatus;
   }
 
-  static generateField(height = 2, width = 3) {
+  static generateField(width = 2, height = 3) {
     let newField = [];
-    for (let i = 0; i < width; i++) {
+    for (let i = 0; i < height; i++) {
       newField.push([]);
-      for (let j = 0; j < height; j++) {
+      for (let j = 0; j < width; j++) {
         newField[i][j] = fieldCharacter;
       }
     }
@@ -59,30 +59,30 @@ class Field {
   navigate(nextMove) {
     switch (nextMove) {
       case "U":
-        this.nextPosition = {
-          x: this.currentPosition.x,
-          y: this.currentPosition.y + 1,
+        this._nextPosition = {
+          x: this._currentPosition.x,
+          y: this._currentPosition.y + 1,
         };
         this.checkMove();
         break;
       case "D":
-        this.nextPosition = {
-          x: this.currentPosition.x,
-          y: this.currentPosition.y - 1,
+        this._nextPosition = {
+          x: this._currentPosition.x,
+          y: this._currentPosition.y - 1,
         };
         this.checkMove();
         break;
       case "L":
-        this.nextPosition = {
-          x: this.currentPosition.x - 1,
-          y: this.currentPosition.y,
+        this._nextPosition = {
+          x: this._currentPosition.x - 1,
+          y: this._currentPosition.y,
         };
         this.checkMove();
         break;
       case "R":
-        this.nextPosition = {
-          x: this.currentPosition.x + 1,
-          y: this.currentPosition.y,
+        this._nextPosition = {
+          x: this._currentPosition.x + 1,
+          y: this._currentPosition.y,
         };
         this.checkMove();
         break;
@@ -94,24 +94,25 @@ class Field {
 
   checkMove() {
     const proposedLocationSymbol =
-      this.fieldArr[this.currentPosition.x][this.currentPosition.y];
+      this.fieldArr[this._currentPosition.x][this._currentPosition.y];
     switch (proposedLocationSymbol) {
       case undefined:
         console.log("You moved off the board, please try again.");
         break;
       case hat:
-        this.currentPosition = this.nextPosition;
-        this.gameStatus = "won";
+        this._currentPosition = this._nextPosition;
+        this._gameStatus = "won";
         break;
       case fieldCharacter:
-        this.currentPosition = this.nextPosition;
-        this.fieldArr[this.currentPosition.x][this.currentPosition.y] =
+        this._currentPosition = this._nextPosition;
+        // fix this, and always start star in corner
+        this.fieldArr[this._currentPosition.x][this._currentPosition.y] =
           pathCharacter;
-        this.gameStatus = "playing";
+        this._gameStatus = "playing";
         break;
       case hole:
-        this.currentPosition = this.nextPosition;
-        this.gameStatus = "lost";
+        this._currentPosition = this._nextPosition;
+        this._gameStatus = "lost";
         break;
       default:
         break;
@@ -120,7 +121,17 @@ class Field {
 }
 
 const playGame = () => {
-  const moveSelection = prompt("What is your next move?: ");
+  const width = prompt("How wide would you like your board? ");
+  const height = prompt("How high would you like your board? ");
+  const newFieldArray = Field.generateField(width, height);
+  const newField = new Field(newFieldArray);
+  console.log("Your new board:");
+  newField.print();
+  while (newField.gameStatus == "playing") {
+    const moveSelection = prompt("What is your next move?: ");
+    newField.navigate(moveSelection);
+    newField.print();
+  }
 };
 
 /*const myField = new Field([
@@ -129,6 +140,4 @@ const playGame = () => {
   ["░", "^", "░"],
 ]);*/
 
-const newFieldArray = Field.generateField(3, 4);
-const newField = new Field(newFieldArray);
-newField.print();
+playGame();
