@@ -39,14 +39,16 @@ class Field {
       // don't want them to win or lose automatically
       if (randomX !== 0 && randomY !== 0) {
         if (numHoles == 1) {
-          newField[randomX][randomY] = hat;
+          newField[randomY][randomX] = hat;
           numHoles--;
         } else {
-          newField[randomX][randomY] = hole;
+          newField[randomY][randomX] = hole;
           numHoles--;
         }
       }
     }
+
+    newField[0][0] = pathCharacter;
     return newField;
   }
 
@@ -61,14 +63,14 @@ class Field {
       case "U":
         this._nextPosition = {
           x: this._currentPosition.x,
-          y: this._currentPosition.y + 1,
+          y: this._currentPosition.y - 1,
         };
         this.checkMove();
         break;
       case "D":
         this._nextPosition = {
           x: this._currentPosition.x,
-          y: this._currentPosition.y - 1,
+          y: this._currentPosition.y + 1,
         };
         this.checkMove();
         break;
@@ -94,7 +96,7 @@ class Field {
 
   checkMove() {
     const proposedLocationSymbol =
-      this.fieldArr[this._currentPosition.x][this._currentPosition.y];
+      this.fieldArr[this._nextPosition.y][this._nextPosition.x];
     switch (proposedLocationSymbol) {
       case undefined:
         console.log("You moved off the board, please try again.");
@@ -106,7 +108,7 @@ class Field {
       case fieldCharacter:
         this._currentPosition = this._nextPosition;
         // fix this, and always start star in corner
-        this.fieldArr[this._currentPosition.x][this._currentPosition.y] =
+        this.fieldArr[this._currentPosition.y][this._currentPosition.x] =
           pathCharacter;
         this._gameStatus = "playing";
         break;
@@ -131,6 +133,12 @@ const playGame = () => {
     const moveSelection = prompt("What is your next move?: ");
     newField.navigate(moveSelection);
     newField.print();
+  }
+  if (newField.gameStatus == "lost") {
+    console.log("Sorry, you lost. Play again soon.");
+  }
+  if (newField.gameStatus == "won") {
+    console.log("You won! Play again to keep your streak.");
   }
 };
 
