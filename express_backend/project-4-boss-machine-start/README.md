@@ -146,7 +146,7 @@ edge cases.
 
 To run these tests, first open the root project directory in your terminal. Then run `npm install` to install all necessary testing dependencies (you will only need to do this step once).
 
-Finally, run `npm run test`. You will see a list of tests that ran with information
+Finally, run `npm run test-watch`. You will see a list of tests that ran with information
 about whether or not each test passed. After this list, you will see more specific output
 about why each failing test failed. While they are open in a terminal window, these tests will re-run every time you save server files. If you want to quit the testing loop, use `Ctrl + C`. If you only want to run the tests once, you can run the `mocha` command in the terminal from your project root directory.
 
