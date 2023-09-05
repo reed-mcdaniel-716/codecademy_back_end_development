@@ -13,6 +13,10 @@ apiRouter.use("/ideas", ideasRouter);
 const meetingsRouter = express.Router({ mergeParams: true });
 apiRouter.use("/meetings", meetingsRouter);
 
+// bonus for minion work
+const workRouter = express.Router({ mergeParams: true });
+minionsRouter.use("/:minionId/work", workRouter);
+
 // minions
 minionsRouter.get("/", (req, res, next) => {
   const allMinions = db.getAllFromDatabase("minions");
@@ -158,6 +162,51 @@ meetingsRouter.delete("/:meetingId", (req, res, next) => {
     next();
   } else {
     res.status(404).send(`Failed to delete meeting ${req.params.meetingId}`);
+    next();
+  }
+});
+
+// work
+workRouter.get("/", (req, res, next) => {
+  const allWork = db.getAllFromDatabase("work");
+  // filter to minion
+  const minionWork = allWork.filter(
+    (work) => work.minionId === req.params.minionId
+  );
+  res.status(200).json(minionWork);
+  next();
+});
+
+workRouter.post("/", (req, res, next) => {
+  // altered function to return null if valid work not created
+  const newWork = db.addToDatabase("work", req.body);
+  if (newWork) {
+    res.status(201).json(newWork);
+    next();
+  } else {
+    res.status(500).send("Invalid work for creation.");
+    next();
+  }
+});
+
+workRouter.put("/:workId", (req, res, next) => {
+  const updatedWork = db.updateInstanceInDatabase("work", req.params.workId);
+  if (updatedWork) {
+    res.status(200).json(updatedWork);
+    next();
+  } else {
+    res.status(404).send(`Failed to update work ${req.params.workId}`);
+    next();
+  }
+});
+
+workRouter.delete("/:workId", (req, res, next) => {
+  const deletedWork = db.deleteFromDatabasebyId("work", req.params.workId);
+  if (deletedWork) {
+    res.satus(200).send(`Deleted work ${req.params.workId}`);
+    next();
+  } else {
+    res.status(404).send(`Failed to delete work ${req.params.workId}`);
     next();
   }
 });
