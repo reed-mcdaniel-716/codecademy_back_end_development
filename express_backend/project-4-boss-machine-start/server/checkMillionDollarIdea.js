@@ -1,11 +1,14 @@
 const checkMillionDollarIdea = (req, res, next) => {
-  const ideaValue = req.idea.numWeeks * req.idea.weeklyRevenue;
-  if (ideaValue >= 1000000) {
-    res.status(200).send();
-    next();
+  if (req.params && req.params.ideaId && isNaN(req.params.ideaId)) {
+    res.status(404).send("ID must be an integer value");
   } else {
-    res.status(400).send();
-    next();
+    const ideaValue =
+      Number(req.body.numWeeks) * Number(req.body.weeklyRevenue);
+    if (ideaValue >= 1000000) {
+      next();
+    } else {
+      res.status(400).send();
+    }
   }
 };
 

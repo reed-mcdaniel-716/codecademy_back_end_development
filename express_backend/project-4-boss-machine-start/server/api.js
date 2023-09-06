@@ -25,13 +25,17 @@ minionsRouter.get("/", (req, res, next) => {
 });
 
 minionsRouter.get("/:minionId", (req, res, next) => {
-  const minion = db.getFromDatabaseById("minions", req.params.minionId);
-  if (minion) {
-    res.status(200).json(minion);
-    next();
+  if (isNaN(req.params.minionId)) {
+    res.status(404).send("ID must be an integer value");
   } else {
-    res.status(404).send(`Unable to find minion ${req.params.minionId}`);
-    next();
+    const minion = db.getFromDatabaseById("minions", req.params.minionId);
+    if (minion) {
+      res.status(200).json(minion);
+      next();
+    } else {
+      res.status(404).send(`Unable to find minion ${req.params.minionId}`);
+      next();
+    }
   }
 });
 
@@ -48,30 +52,35 @@ minionsRouter.post("/", (req, res, next) => {
 });
 
 minionsRouter.put("/:minionId", (req, res, next) => {
-  const updatedMinion = db.updateInstanceInDatabase(
-    "minions",
-    req.params.minionId
-  );
-  if (updatedMinion) {
-    res.status(200).json(updatedMinion);
-    next();
+  if (isNaN(req.params.minionId)) {
+    res.status(404).send("ID must be an integer value");
   } else {
-    res.status(404).send(`Failed to update minion ${req.params.minionId}`);
-    next();
+    const updatedMinion = db.updateInstanceInDatabase("minions", req.body);
+    if (updatedMinion) {
+      res.status(200).json(updatedMinion);
+      next();
+    } else {
+      res.status(404).send(`Failed to update minion ${req.params.minionId}`);
+      next();
+    }
   }
 });
 
-minionsRouter.delete("/:minonId", (req, res, next) => {
-  const deletedMinion = db.deleteFromDatabasebyId(
-    "minions",
-    req.params.minionId
-  );
-  if (deletedMinion) {
-    res.satus(200).send(`Deleted minion ${req.params.minionId}`);
-    next();
+minionsRouter.delete("/:minionId", (req, res, next) => {
+  if (isNaN(req.params.minionId)) {
+    res.status(404).send("ID must be an integer value");
   } else {
-    res.status(404).send(`Failed to delete minion ${req.params.minionId}`);
-    next();
+    const deletedMinion = db.deleteFromDatabasebyId(
+      "minions",
+      req.params.minionId
+    );
+    if (deletedMinion) {
+      res.status(204).send(`Deleted minion ${req.params.minionId}`);
+      next();
+    } else {
+      res.status(404).send(`Failed to delete minion ${req.params.minionId}`);
+      next();
+    }
   }
 });
 
@@ -83,21 +92,25 @@ ideasRouter.get("/", (req, res, next) => {
 });
 
 ideasRouter.get("/:ideaId", (req, res, next) => {
-  const idea = db.getFromDatabaseById("ideas", req.params.ideaId);
-  if (idea) {
-    res.status(200).json(idea);
-    next();
+  if (isNaN(req.params.ideaId)) {
+    res.status(404).send("ID must be an integer value");
   } else {
-    res.status(404).send(`Unable to find idea ${req.params.ideaId}`);
-    next();
+    const idea = db.getFromDatabaseById("ideas", req.params.ideaId);
+    if (idea) {
+      res.status(200).json(idea);
+      next();
+    } else {
+      res.status(404).send(`Unable to find idea ${req.params.ideaId}`);
+      next();
+    }
   }
 });
 
+ideasRouter.post("/", checkMillionDollarIdea);
 ideasRouter.post("/", (req, res, next) => {
   const newIdea = db.addToDatabase("ideas", req.body);
   // altered function to return null if valid idea not created
   if (newIdea) {
-    req.idea = newIdea;
     res.status(201).json(newIdea);
     next();
   } else {
@@ -106,30 +119,34 @@ ideasRouter.post("/", (req, res, next) => {
   }
 });
 
-ideasRouter.post("/", checkMillionDollarIdea);
-
+ideasRouter.put("/:ideaId", checkMillionDollarIdea);
 ideasRouter.put("/:ideaId", (req, res, next) => {
-  const updatedIdea = db.updateInstanceInDatabase("ideas", req.params.ideaId);
-  if (updatedIdea) {
-    req.idea = updatedIdea;
-    res.status(200).json(updatedIdea);
-    next();
+  if (isNaN(req.params.ideaId)) {
+    res.status(404).send("ID must be an integer value");
   } else {
-    res.status(404).send(`Failed to update idea ${req.params.ideaId}`);
-    next();
+    const updatedIdea = db.updateInstanceInDatabase("ideas", req.body);
+    if (updatedIdea) {
+      res.status(200).json(updatedIdea);
+      next();
+    } else {
+      res.status(404).send(`Failed to update idea ${req.params.ideaId}`);
+      next();
+    }
   }
 });
 
-ideasRouter.put("/:ideaId", checkMillionDollarIdea);
-
 ideasRouter.delete("/:ideaId", (req, res, next) => {
-  const deletedIdea = db.deleteFromDatabasebyId("ideas", req.params.ideaId);
-  if (deletedIdea) {
-    res.satus(200).send(`Deleted idea ${req.params.ideaId}`);
-    next();
+  if (isNaN(req.params.ideaId)) {
+    res.status(404).send("ID must be an integer value");
   } else {
-    res.status(404).send(`Failed to delete idea ${req.params.ideaId}`);
-    next();
+    const deletedIdea = db.deleteFromDatabasebyId("ideas", req.params.ideaId);
+    if (deletedIdea) {
+      res.status(204).send(`Deleted idea ${req.params.ideaId}`);
+      next();
+    } else {
+      res.status(404).send(`Failed to delete idea ${req.params.ideaId}`);
+      next();
+    }
   }
 });
 
@@ -142,9 +159,10 @@ meetingsRouter.get("/", (req, res, next) => {
 
 meetingsRouter.post("/", (req, res, next) => {
   const newMeeting = db.createMeeting();
+  const addedMeeting = db.addToDatabase("meetings", newMeeting);
   // altered function to return null if valid meeting not created
-  if (newMeeting) {
-    res.status(201).json(newMeeting);
+  if (addedMeeting) {
+    res.status(201).json(addedMeeting);
     next();
   } else {
     res.status(500).send("Invalid meeting for creation.");
@@ -152,29 +170,30 @@ meetingsRouter.post("/", (req, res, next) => {
   }
 });
 
-meetingsRouter.delete("/:meetingId", (req, res, next) => {
-  const deletedMeeting = db.deleteFromDatabasebyId(
-    "meetings",
-    req.params.meetingId
-  );
-  if (deletedMeeting) {
-    res.satus(200).send(`Deleted meeting ${req.params.meetingId}`);
+meetingsRouter.delete("/", (req, res, next) => {
+  const deletedMeetings = db.deleteAllFromDatabase("meetings");
+  if (deletedMeetings) {
+    res.status(204).send(`Deleted all meetings`);
     next();
   } else {
-    res.status(404).send(`Failed to delete meeting ${req.params.meetingId}`);
+    res.status(404).send(`Failed to delete all meetings`);
     next();
   }
 });
 
 // work
 workRouter.get("/", (req, res, next) => {
-  const allWork = db.getAllFromDatabase("work");
-  // filter to minion
-  const minionWork = allWork.filter(
-    (work) => work.minionId === req.params.minionId
-  );
-  res.status(200).json(minionWork);
-  next();
+  if (isNaN(req.params.minionId)) {
+    res.status(404).send("ID must be an integer value");
+  } else {
+    const allWork = db.getAllFromDatabase("work");
+    // filter to minion
+    const minionWork = allWork.filter(
+      (work) => work.minionId === req.params.minionId
+    );
+    res.status(200).json(minionWork);
+    next();
+  }
 });
 
 workRouter.post("/", (req, res, next) => {
@@ -190,24 +209,32 @@ workRouter.post("/", (req, res, next) => {
 });
 
 workRouter.put("/:workId", (req, res, next) => {
-  const updatedWork = db.updateInstanceInDatabase("work", req.params.workId);
-  if (updatedWork) {
-    res.status(200).json(updatedWork);
-    next();
+  if (isNaN(req.params.workId)) {
+    res.status(404).send("ID must be an integer value");
   } else {
-    res.status(404).send(`Failed to update work ${req.params.workId}`);
-    next();
+    const updatedWork = db.updateInstanceInDatabase("work", req.params.workId);
+    if (updatedWork) {
+      res.status(200).json(updatedWork);
+      next();
+    } else {
+      res.status(404).send(`Failed to update work ${req.params.workId}`);
+      next();
+    }
   }
 });
 
 workRouter.delete("/:workId", (req, res, next) => {
-  const deletedWork = db.deleteFromDatabasebyId("work", req.params.workId);
-  if (deletedWork) {
-    res.satus(200).send(`Deleted work ${req.params.workId}`);
-    next();
+  if (isNaN(req.params.workId)) {
+    res.status(404).send("ID must be an integer value");
   } else {
-    res.status(404).send(`Failed to delete work ${req.params.workId}`);
-    next();
+    const deletedWork = db.deleteFromDatabasebyId("work", req.params.workId);
+    if (deletedWork) {
+      res.status(204).send(`Deleted work ${req.params.workId}`);
+      next();
+    } else {
+      res.status(404).send(`Failed to delete work ${req.params.workId}`);
+      next();
+    }
   }
 });
 
