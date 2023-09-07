@@ -191,8 +191,13 @@ workRouter.get("/", (req, res, next) => {
     const minionWork = allWork.filter(
       (work) => work.minionId === req.params.minionId
     );
-    res.status(200).json(minionWork);
-    next();
+    if (minionWork.length > 0) {
+      res.status(200).json(minionWork);
+      next();
+    } else {
+      res.status(404).send(`No work found for minion ${req.params.minionId}`);
+      next();
+    }
   }
 });
 
@@ -212,13 +217,31 @@ workRouter.put("/:workId", (req, res, next) => {
   if (isNaN(req.params.workId)) {
     res.status(404).send("ID must be an integer value");
   } else {
-    const updatedWork = db.updateInstanceInDatabase("work", req.params.workId);
-    if (updatedWork) {
-      res.status(200).json(updatedWork);
-      next();
+    // check minion exists
+    const minion = db.getFromDatabaseById("minions", req.params.minionId);
+    if (minion) {
+      // check that work is for appropriate minion
+      const currentWork = db.getFromDatabaseById("work", req.params.workId);
+      if (currentWork.minionId === req.body.minionId) {
+        const updatedWork = db.updateInstanceInDatabase("work", req.body);
+        if (updatedWork) {
+          res.status(200).json(updatedWork);
+          next();
+        } else {
+          res.status(404).send(`Failed to update work ${req.params.workId}`);
+          next();
+        }
+      } else {
+        res
+          .status(400)
+          .send(
+            `Failed to update work ${req.params.workId} for minion ${req.body.minionId} as it currently belongs to minion ${currentWork.minionId}`
+          );
+      }
     } else {
-      res.status(404).send(`Failed to update work ${req.params.workId}`);
-      next();
+      res
+        .status(404)
+        .send(`Unable to update work for minion ${req.params.minionId}`);
     }
   }
 });
