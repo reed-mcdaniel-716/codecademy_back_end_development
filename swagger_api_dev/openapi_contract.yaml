@@ -1,0 +1,140 @@
+openapi: 3.0.1
+info:
+  title: Online Order API
+  version: 1.0.0
+  description: A basic API for working with the Swagger tools
+paths:
+  /orders:
+    summary: Get all of the orders data.
+    description: >-
+      This path is used to retrieve all of the orders data from the orders,json
+      file.
+    get:
+      summary: Gets all order data
+      description: Retrieve the order information for the orders.json file.
+      operationId: get_orders
+      responses:
+        '200':
+          description: Default success sample response
+          content:
+            application/json:
+              examples:
+                orders:
+                  value: |-
+                    {
+                        "orders": [
+                            {
+                                "name": "Carey Maynard",
+                                "id": "001",
+                                "state": "pending"
+                            },
+                            {
+                                "name": "Angelo Ayala",
+                                "id": "002",
+                                "state": "canceled"
+                            },
+                            {
+                                "name": "Regina Yates",
+                                "id": "003",
+                                "state": "pending"
+                            },
+                            {
+                                "name": "Elliott Mcclure",
+                                "id": "004",
+                                "state": "pending"
+                            }
+                        ]
+                    }
+      tags:
+        - orders
+  /neworder:
+    summary: Add new orders
+    description: This path is used to add a new order to the orders.json file.
+    post:
+      summary: Add new order
+      description: ''
+      operationId: new_order
+      responses:
+        '201':
+          description: Default success sample response
+          content:
+            application/json:
+              examples:
+                orders:
+                  value: '{ "id": "007" }'
+      tags:
+        - orders
+  /update/{id}:
+    summary: Update existing order by id
+    description: >-
+      This path is used to change the status of an order matching the provided
+      id. It modifies the state attribute of each order.
+    put:
+      summary: Update order by id
+      description: ' Update the state of an order with a matching id in the orders.json file'
+      operationId: update_order_by_id
+      parameters:
+      - name: id
+        in: path
+        description: 'The id of the order.'
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: A new order object
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Order'
+      responses:
+        '200':
+          description: Default success sample response
+          content:
+            application/json:
+              examples:
+                orders:
+                  value: '{ "id": "007" }'
+        default:
+          description: Default error sample response
+      tags:
+        - orders
+  /delete/{id}:
+    summary: Delete an order by id
+    description: This path is used to delete an order with a matching id.
+    delete:
+      summary: Delete order by id
+      description: Delete an order with a matching id from the orders.json file
+      operationId: delete_order_by_id
+      parameters:
+      - name: id
+        in: path
+        description: 'The id of the order.'
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Default success sample response
+          content:
+            application/json:
+              examples:
+                orders:
+                  value: '{ "id" : "007" }'
+        default:
+          description: Default error sample response
+      tags:
+        - orders
+        
+components:
+  schemas:
+    Order:
+      type: object
+      properties:
+        name:
+          type: string
+        id:
+          type: string
+        state:
+          type: string
+      xml:
+        name: Order
